@@ -1,34 +1,77 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useEffect, useState } from 'react'
 import './App.css'
+import InputBox from './components/InputBox'
+import useCurrencyInfo from './hooks/useCurrencyInfo'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [amount,setAmount] = useState(0)
+  const [from,setFrom] = useState("usd")
+  const [to,setTo] = useState("inr")
+  const [convertedAmount, setConvertedAmount] = useState(0)
+
+  const data = useCurrencyInfo(from)
+  const currencyOptions = Object.keys(data)
+
+  const swap = () => {
+    setFrom(to)
+    setTo(from)
+    setAmount(convertedAmount)
+    setConvertedAmount(amount)
+  }
+
+  useEffect(() => {
+    convert()
+  },[amount, swap])
+
+  const convert = () => {
+    setConvertedAmount((amount * data[to]).toFixed(2))
+  }
+
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className='w-full h-screen flex flex-wrap justify-center items-center bg-cover bg-no-repeat'
+     style={{ backgroundImage: 
+     `url(https://images.pexels.com/photos/4497591/pexels-photo-4497591.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2)` }}>
+      <div className="w-full">
+        <div className="w-full max-w-md mx-auto border border-gray-60 rounded-lg p-5 backdrop-blur-sm bg-white/30">
+          <form onSubmit={(e) => {
+            e.preventDefault()
+          
+          }}>
+            <div className="w-full mb-1">
+              <InputBox label="From" amount={amount} 
+              currencyOptions={currencyOptions} 
+              onAmountChange={(amount) => setAmount(amount)}
+              selectedCurrency={from}
+              onCurrencyChange={(currency) => setFrom(currency)}
+              
+              
+              
+              /> 
+            </div>
+            <div className="relative w-full h-0 5">
+                <button 
+                className='absolute left-1/2 -translate-x-1/2 -translate-y-1/2 border-2
+               border-white rounded-md bg-blue-600 text-white px-2 py-0.5'
+               onClick={swap}
+               >
+                Swap
+                </button>  
+            </div>   
+            <div className="w-full mb-1">
+              <InputBox label="To" 
+              currencyOptions={currencyOptions} 
+              amount={convertedAmount}
+              amountDisabled
+              selectedCurrency={to}
+              onCurrencyChange={(currency) => setTo(currency)}
+              onAmountChange={(convertedAmount) => setConvertedAmount(convertedAmount)}
+              /> 
+            </div>
+          </form>
+        </div>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </div>
   )
 }
 
